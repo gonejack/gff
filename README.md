@@ -1,6 +1,7 @@
 # gff
-Go file flatting - extract files from directories.
+Go file flatting - extract files from sub-directories.
 
+## Usage
 ```
 before
 .
@@ -17,8 +18,6 @@ before
 > gff -yes '*.flv'
 ```
 
-
-
 ```
 after
 .
@@ -29,3 +28,17 @@ after
 └── c.flv
 ```
 
+## Help
+```
+Usage: gff [<patterns> ...]
+
+Extract files from nested directory https://github.com/gonejack/gff
+
+Arguments:
+  [<patterns> ...]
+
+Flags:
+  -h, --help             Show context-sensitive help.
+  -s, --separator="_"    Filename separator.
+  -y, --yes              Make real changes.
+```
