@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,15 +13,21 @@ import (
 type command struct {
 	Separator string   `short:"s" default:"_" help:"Filename separator."`
 	Yes       bool     `short:"y" help:"Make real changes."`
+	About     bool     `help:"Show about."`
 	Patterns  []string `arg:"" optional:""`
 }
 
 func (c *command) run() {
 	kong.Parse(c,
 		kong.Name("gff"),
-		kong.Description("Extract files from nested directory https://github.com/gonejack/gff"),
+		kong.Description("Extract files from nested directory."),
 		kong.UsageOnError(),
 	)
+
+	if c.About {
+		fmt.Println("Visit https://github.com/gonejack/gff")
+		return
+	}
 
 	if !c.Yes {
 		log.Println("changes preview:")
@@ -38,7 +45,7 @@ func (c *command) run() {
 		log.Printf("no matches.")
 	}
 }
-func (c *command) walk(dir string) (hasMatches bool) {
+func (c *command) walk(dir string) (matchAny bool) {
 	if !filepath.IsAbs(dir) {
 		dir, _ = filepath.Abs(dir)
 	}
@@ -49,13 +56,12 @@ func (c *command) walk(dir string) (hasMatches bool) {
 				return
 			}
 
-			match, _ := filepath.Match(pattern, filepath.Base(file))
-			if !match {
+			matched, _ := filepath.Match(pattern, filepath.Base(file))
+			if !matched {
 				return
 			}
 
-			hasMatches = true
-
+			matchAny = true
 			rename := strings.TrimPrefix(file, dir)
 			rename = strings.TrimPrefix(rename, string(filepath.Separator))
 			rename = strings.Replace(rename, string(filepath.Separator), c.Separator, -1)
@@ -63,7 +69,7 @@ func (c *command) walk(dir string) (hasMatches bool) {
 
 			if file == rename {
 				log.Printf("skip %s", rename)
-				return nil
+				return
 			}
 
 			log.Printf("rename %s => %s", file, rename)
@@ -71,8 +77,8 @@ func (c *command) walk(dir string) (hasMatches bool) {
 			if c.Yes {
 				err = os.Rename(file, rename)
 				if err != nil {
-					log.Printf("error: %s", err)
-					return err
+					log.Printf("rename %s => %s failed: %s", file, rename, err)
+					return
 				}
 			}
 
