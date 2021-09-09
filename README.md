@@ -19,7 +19,7 @@ before
 ```
 > go get github.com/gonejack/gff
 
-> gff -yes '*.flv'
+> gff -y '*.flv'
 ```
 
 ```
